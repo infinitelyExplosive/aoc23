@@ -154,7 +154,7 @@ pub fn part_a() {
     }
 }
 
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Default, Debug)]
 struct PartRange {
     xmin: i64,
     xmax: i64,
@@ -177,116 +177,118 @@ fn new_ranges(range: PartRange, rule: &Rule) -> (PartRange, PartRange) {
         }
     };
     let thresh = rule.thresh;
-    if thresh <= min {
-        if rule.is_greater {
+
+    if rule.is_greater {
+        if thresh < min {
+            return (range, Default::default());
+        } else if thresh >= max {
             return (Default::default(), range);
-        } else {
+        }
+        return match rule.category {
+            'x' => (
+                PartRange {
+                    xmin: thresh + 1,
+                    ..range
+                },
+                PartRange {
+                    xmax: thresh,
+                    ..range
+                },
+            ),
+            'm' => (
+                PartRange {
+                    mmin: thresh + 1,
+                    ..range
+                },
+                PartRange {
+                    mmax: thresh,
+                    ..range
+                },
+            ),
+            'a' => (
+                PartRange {
+                    amin: thresh + 1,
+                    ..range
+                },
+                PartRange {
+                    amax: thresh,
+                    ..range
+                },
+            ),
+            's' => (
+                PartRange {
+                    smin: thresh + 1,
+                    ..range
+                },
+                PartRange {
+                    smax: thresh,
+                    ..range
+                },
+            ),
+            _ => {
+                panic!("invalid category")
+            }
+        };
+    } else {
+        if thresh <= min {
+            return (Default::default(), range);
+        } else if thresh > max {
             return (range, Default::default());
         }
-    } else if thresh > max {
-        return (range, Default::default());
-    } else {
-        if rule.is_greater {
-            return match rule.category {
-                'x' => (
-                    PartRange {
-                        xmax: thresh - 1,
-                        ..range
-                    },
-                    PartRange {
-                        xmin: thresh,
-                        ..range
-                    },
-                ),
-                'm' => (
-                    PartRange {
-                        mmax: thresh - 1,
-                        ..range
-                    },
-                    PartRange {
-                        mmin: thresh,
-                        ..range
-                    },
-                ),
-                'a' => (
-                    PartRange {
-                        amax: thresh - 1,
-                        ..range
-                    },
-                    PartRange {
-                        amin: thresh,
-                        ..range
-                    },
-                ),
-                's' => (
-                    PartRange {
-                        smax: thresh - 1,
-                        ..range
-                    },
-                    PartRange {
-                        smin: thresh,
-                        ..range
-                    },
-                ),
-                _ => {
-                    panic!("invalid category")
-                }
-            };
-        } else {
-            return match rule.category {
-                'x' => (
-                    PartRange {
-                        xmax: thresh - 1,
-                        ..range
-                    },
-                    PartRange {
-                        xmin: thresh,
-                        ..range
-                    },
-                ),
-                'm' => (
-                    PartRange {
-                        mmax: thresh - 1,
-                        ..range
-                    },
-                    PartRange {
-                        mmin: thresh,
-                        ..range
-                    },
-                ),
-                'a' => (
-                    PartRange {
-                        amax: thresh - 1,
-                        ..range
-                    },
-                    PartRange {
-                        amin: thresh,
-                        ..range
-                    },
-                ),
-                's' => (
-                    PartRange {
-                        smax: thresh - 1,
-                        ..range
-                    },
-                    PartRange {
-                        smin: thresh,
-                        ..range
-                    },
-                ),
-                _ => {
-                    panic!("invalid category")
-                }
-            };
-        }
+        return match rule.category {
+            'x' => (
+                PartRange {
+                    xmax: thresh - 1,
+                    ..range
+                },
+                PartRange {
+                    xmin: thresh,
+                    ..range
+                },
+            ),
+            'm' => (
+                PartRange {
+                    mmax: thresh - 1,
+                    ..range
+                },
+                PartRange {
+                    mmin: thresh,
+                    ..range
+                },
+            ),
+            'a' => (
+                PartRange {
+                    amax: thresh - 1,
+                    ..range
+                },
+                PartRange {
+                    amin: thresh,
+                    ..range
+                },
+            ),
+            's' => (
+                PartRange {
+                    smax: thresh - 1,
+                    ..range
+                },
+                PartRange {
+                    smin: thresh,
+                    ..range
+                },
+            ),
+            _ => {
+                panic!("invalid category")
+            }
+        };
     }
+    // }
 }
 
 fn range_size(range: &PartRange) -> i64 {
-    return (range.xmax - range.xmin)
-        * (range.mmax - range.mmin)
-        * (range.amax - range.amin)
-        * (range.smax - range.smin);
+    return (range.xmax - range.xmin + 1)
+        * (range.mmax - range.mmin + 1)
+        * (range.amax - range.amin + 1)
+        * (range.smax - range.smin + 1);
 }
 
 fn trace_rule(
@@ -294,42 +296,45 @@ fn trace_rule(
     rule: &Rule,
     chains: &HashMap<String, (Vec<Rule>, String)>,
     count: &mut i64,
-) {
+) -> PartRange {
     if rule.is_greater {
-        let (r1, r2) = new_ranges(range, rule);
+        let (taken, not_taken) = new_ranges(range, rule);
         if rule.dest == "A" {
-            *count += range_size(&r1);
+            *count += range_size(&taken);
+            return not_taken;
         } else if rule.dest == "R" {
-            Some(false);
+            return not_taken;
         } else {
-            trace_chain(range, &rule.dest, chains, count);
+            trace_chain(taken, &rule.dest, chains, count);
+            return not_taken;
         }
     } else {
+        let (taken, not_taken) = new_ranges(range, rule);
         if rule.dest == "A" {
-            Some(true);
+            *count += range_size(&taken);
+            return not_taken;
         } else if rule.dest == "R" {
-            Some(false);
+            return not_taken;
         } else {
-            trace_chain(range, &rule.dest, chains, count);
+            trace_chain(taken, &rule.dest, chains, count);
+            return not_taken;
         };
     };
 }
 
 fn trace_chain(
-    range: PartRange,
+    mut range: PartRange,
     chain_name: &String,
     chains: &HashMap<String, (Vec<Rule>, String)>,
     count: &mut i64,
 ) {
     let chain = chains.get(chain_name).unwrap();
     for rule in &chain.0 {
-        trace_rule(range, rule, chains, count);
+        range = trace_rule(range, rule, chains, count);
     }
     if chain.1 == "A" {
-        Some(true);
-    } else if chain.1 == "R" {
-        Some(false);
-    } else {
+        *count += range_size(&range);
+    } else if chain.1 != "R" {
         trace_chain(range, &chain.1, chains, count);
     }
 }
@@ -407,14 +412,19 @@ pub fn part_b() {
             });
         }
 
-        let mut sum = 0;
-        for part in parts {
-            if let Some(result) = eval_chain(&part, &"in".to_string(), &chains) {
-                if result {
-                    sum += part.x + part.m + part.a + part.s;
-                }
-            }
-        }
-        println!("{}", sum);
+        let max_range = PartRange {
+            xmin: 1,
+            xmax: 4000,
+            mmin: 1,
+            mmax: 4000,
+            amin: 1,
+            amax: 4000,
+            smin: 1,
+            smax: 4000,
+        };
+
+        let mut result = 0;
+        trace_chain(max_range, &"in".to_string(), &chains, &mut result);
+        println!("{}", result);
     }
 }
