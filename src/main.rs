@@ -1,4 +1,6 @@
 #![allow(unused_imports, dead_code)]
+
+use day1::part_b;
 mod day1;
 mod day10;
 mod day11;
@@ -13,6 +15,7 @@ mod day19;
 mod day2;
 mod day20;
 mod day21;
+mod day22;
 mod day3;
 mod day4;
 mod day5;
@@ -62,5 +65,7 @@ fn main() {
     // day20::part_a();
     // day20::part_b();
     // day21::part_a();
-    day21::part_b();
+    // day21::part_b();
+    // day22::part_a();
+    day22::part_b();
 }

@@ -141,13 +141,13 @@ pub fn part_b() {
     if let Ok(data) = fs::read_to_string("day21.txt") {
         let mut grid: Vec<Vec<char>> = Vec::new();
 
-        let mut start_x = 0;
-        let mut start_y = 0;
+        // let mut start_x = 0;
+        // let mut start_y = 0;
         for line in data.lines() {
-            if let Some(j) = line.chars().position(|c| c == 'S') {
-                start_x = j;
-                start_y = grid.len();
-            }
+            // if let Some(j) = line.chars().position(|c| c == 'S') {
+            //     start_x = j;
+            //     start_y = grid.len();
+            // }
             let row = line.replace('S', ".").chars().collect();
             grid.push(row);
         }
@@ -174,7 +174,7 @@ pub fn part_b() {
         let steps = 26501365;
         // let steps = 501;
 
-        let grids_above = (steps - 1 - (height - 1) / 2) / height;
+        // let grids_above = (steps - 1 - (height - 1) / 2) / height;
         let grids_side = (steps - 1 - (width - 1) / 2) / width;
         // println!(
         //     "full grids: {} x {}",
@@ -321,8 +321,8 @@ pub fn part_b() {
             );
         }
 
-        let sum1 = sum;
         println!("{}", sum);
+        // let sum1 = sum;
 
         // let mut reachable = vec![vec![false; fullsize[0].len()]; fullsize.len()];
         // reachable[start_y + height * top_factor][start_x + width * left_factor] = true;
