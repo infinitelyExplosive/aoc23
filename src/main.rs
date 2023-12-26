@@ -16,6 +16,7 @@ mod day2;
 mod day20;
 mod day21;
 mod day22;
+mod day23;
 mod day3;
 mod day4;
 mod day5;
@@ -67,5 +68,7 @@ fn main() {
     // day21::part_a();
     // day21::part_b();
     // day22::part_a();
-    day22::part_b();
+    // day22::part_b();
+    // day23::part_a();
+    day23::part_b();
 }
